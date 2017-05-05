@@ -14,6 +14,6 @@ def build_command(executable,  input_file, output_dir=None,
         cmd.append("-o")
         output_file = output_dir + "/" + output_file
         cmd.append(output_file)
-    if options:
-        cmd.append(options)
+    for option in options:
+        cmd.append(option)
     return cmd, output_file
