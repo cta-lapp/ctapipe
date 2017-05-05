@@ -303,9 +303,9 @@ class Flow(Tool):
         """
         try:
             consumer_zmq = self.instantiation(self.consumer_step.name,
-                                      self.CONSUMER,
-                                      port_in=self.consumer_step.port_in,
-                                      config=self.consumer_conf)
+                                              self.CONSUMER,
+                                              port_in=self.consumer_step.port_in,
+                                              config=self.consumer_conf)
         except FlowError as e:
             self.log.error(e)
             return False
@@ -337,11 +337,11 @@ class Flow(Tool):
         """
         #PRODUCER
         try:
-            producer_zmq = self.instantiation(
-                self.producer_step.name, self.PRODUCER,
-                connexions = self.producer_step.connexions,
-                main_connexion_name = self.producer_step.main_connexion_name,
-                config= self.producer_conf)
+            producer_zmq = self.instantiation(self.producer_step.name,
+                                              self.PRODUCER,
+                                              connexions=self.producer_step.connexions,
+                                              main_connexion_name=self.producer_step.main_connexion_name,
+                                              config=self.producer_conf)
         except FlowError as e:
             self.log.error(e)
             return False
@@ -602,11 +602,10 @@ class Flow(Tool):
     def start_sequential(self):
         """ run the Flow based framework in sequential mode
         """
-        if self.gui :
+        if self.gui:
             self.socket_pub.send_multipart(
             [b'MODE', dumps('sequential')])
         start_time = time()
-        #self.producer.running = 0
         # Get producer instance's generator
         self.producer = self.sequential_instances[self.producer_step.name]
         #execute producer run coroutine

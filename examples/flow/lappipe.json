@@ -1,0 +1,21 @@
+{
+  "version": 1,
+
+  "Flow": {
+      "producer_conf": { "name" : "ListPrunFile",
+                         "module": "ctapipe.flow.algorithms.list_producer_process",
+                         "class": "ListProducerProcess","next_steps" : "LappCalibration"},
+      "consumer_conf": { "name" : "StringWriter",
+                         "module": "ctapipe.flow.algorithms.string_writer",
+                "class": "StringWriter"},
+      "stagers_conf" : [ {"name": "LappCalibration", "class": "LappCalibration",
+                          "module": "ctapipe.flow.algorithms.lapp_calibration",
+                          "next_steps" : "StringWriter", "nb_process" : 1 }
+                       ]
+  },
+
+  "ListProducerProcess": { "source_dir": "/tmp/prun/"},
+  "LappCalibration": {"exe": "prun2pcalibrun"},
+  "StringWriter" : { "filename" : "/tmp/lappipe.log"}
+}
+
