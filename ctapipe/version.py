@@ -77,7 +77,7 @@ def call_git_describe(abbrev=7):
     try:
         with open(devnull, "w") as fnull:
             arguments = [GIT_COMMAND, "describe", "--tags",
-                         "--abbrev=%d" % abbrev]
+                         "--abbrev=%d" % abbrev, "--always"]
             return check_output(arguments, cwd=CURRENT_DIRECTORY,
                                 stderr=fnull).decode("ascii").strip()
     except (OSError, CalledProcessError):
