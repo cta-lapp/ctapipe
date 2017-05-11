@@ -9,8 +9,8 @@ RUN cd /opt/ctapipe \
  && conda install -n ${CONDA_ENV} 'pyqt<5' psutil graphviz numpydoc \
  && source activate ${CONDA_ENV} \
  && HDF5_DIR=/usr make develop \
- && (pytest || true)
- # && pip install sphinx-automodapi \
- # && make doc
+ && (pytest || true) \
+ && pip install sphinx-automodapi \
+ && make doc
 
 ENV LD_LIBRARY_PATH=/opt/conda/envs/${CONDA_ENV}/lib:$LD_LIBRARY_PATH
