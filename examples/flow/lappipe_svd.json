@@ -4,14 +4,14 @@
   "Flow": {
       "producer_conf": { "name" : "ListPrunFile",
                          "module": "ctapipe.flow.algorithms.list_producer_process",
-                         "class": "ListProducerProcess","next_steps" : "Prun2PtimeHillas"},
+                         "class": "ListProducerProcess","next_steps" : "Prun2PtimehillasSvdSet"},
 
       "consumer_conf": { "name" : "StringWriter",
                          "module": "ctapipe.flow.algorithms.string_writer",
                 "class": "StringWriter"},
 
-      "stagers_conf" : [ {"name": "Prun2PtimeHillas", "class": "Prun2PtimeHillas",
-                          "module": "ctapipe.flow.algorithms.lapp_prun2ptimehillas",
+      "stagers_conf" : [ {"name": "Prun2PtimehillasSvdSet", "class": "Prun2PtimehillasSvdSet",
+                          "module": "ctapipe.flow.algorithms.lapp_prun2ptimehillassvdset",
                           "next_steps" : "PtimeHillas2PRecoEvent", "nb_process" : 4 },
 
                          {"name": "PtimeHillas2PRecoEvent", "class": "PtimeHillas2PRecoEvent",
@@ -21,8 +21,8 @@
   },
 
   "ListProducerProcess": { "source_dir": "/tmp/prun/"},
-  "Prun2PtimeHillas": {"exe": "prun2ptimehillas",
-                      "config_file" : "/home/jacquem/workspace/ctasoft/tmp/defaultConfig.ini"
+  "Prun2PtimehillasSvdSet": {"exe": "prun2ptimehillassvdset",
+                      "config_file" : "/home/jacquem/workspace/ctasoft/tmp/defaultConfig.ini",
                       "CleaningType": "tailcut"},
   "PtimeHillas2PRecoEvent": {"exe": "ptimehillas2precoevent",
                       "config_file" : "/home/jacquem/workspace/ctasoft/tmp/defaultConfig.ini"},
