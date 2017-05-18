@@ -4,7 +4,7 @@ from ctapipe.flow.algorithms.in_out_process import InOutProcess
 
 
 
-class PtimeHillas2PRecoEvent(InOutProcess):
+class PTimeHillasSvdSet2Precoevent(InOutProcess):
 
     exe = Unicode(help='executable').tag(
         config=True, allow_none=False)
@@ -12,4 +12,4 @@ class PtimeHillas2PRecoEvent(InOutProcess):
         config=True, allow_none=True)
 
     def init(self):
-        super().init(self.exe, self.options)
+        super().init(self.exe, self.options, out_extension="precoevent")

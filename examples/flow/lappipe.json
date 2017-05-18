@@ -4,28 +4,46 @@
   "Flow": {
       "producer_conf": { "name" : "ListPrunFile",
                          "module": "ctapipe.flow.algorithms.list_producer_process",
-                         "class": "ListProducerProcess","next_steps" : "Prun2PtimeHillas"},
+                         "class": "ListProducerProcess","next_steps" : "Prun2PTableHillasSvdSet"},
 
-      "consumer_conf": { "name" : "StringWriter",
-                         "module": "ctapipe.flow.algorithms.string_writer",
-                "class": "StringWriter"},
+      "consumer_conf": { "name" : "PTimeHillasSvdSet2Precoevent",
+                         "module": "ctapipe.flow.algorithms.lapp_ptimehillassvdset2precoevent",
+                         "class": "PTimeHillasSvdSet2Precoevent"},
 
-      "stagers_conf" : [ {"name": "Prun2PtimeHillas", "class": "Prun2PtimeHillas",
-                          "module": "ctapipe.flow.algorithms.lapp_prun2ptimehillas",
-                          "next_steps" : "PtimeHillas2PRecoEvent", "nb_process" : 4 },
+      "stagers_conf" : [ {"name": "Prun2PTableHillasSvdSet",
+                          "class": "Prun2PTableHillasSvdSet",
+                          "module": "ctapipe.flow.algorithms.lapp_prun2ptablehillassvdset",
+                          "next_steps" : "PTableHillasSvdSetSplitter", "nb_process" : 1 },
 
-                         {"name": "PtimeHillas2PRecoEvent", "class": "PtimeHillas2PRecoEvent",
-                          "module": "ctapipe.flow.algorithms.lapp_ptimehillas2precoevent",
-                          "next_steps" : "StringWriter", "nb_process" : 1 }
-      ]
+                         {"name": "PTableHillasSvdSetSplitter",
+                          "class": "PTableHillasSvdSetSplitter",
+                          "module": "ctapipe.flow.algorithms.lapp_ptablehillassvdsetsplitter",
+                          "next_steps" : "PTableHillasSvdSet2PTimeHillasSvdSet", "nb_process" : 1 },
+
+                         {"name": "PTableHillasSvdSet2PTimeHillasSvdSet",
+                          "class": "PTableHillasSvdSet2PTimeHillasSvdSet",
+                          "module": "ctapipe.flow.algorithms.lapp_ptablehillassvdset2ptimehillassvdset",
+                          "next_steps" : "PTimeHillasSvdSet2Precoevent", "nb_process" : 1 }
+
+                       ]
   },
 
   "ListProducerProcess": { "source_dir": "/tmp/prun/"},
-  "Prun2PtimeHillas": {"exe": "prun2ptimehillas",
-                      "config_file" : "/home/jacquem/workspace/ctasoft/tmp/defaultConfig.ini"
-                      "CleaningType": "tailcut"},
-  "PtimeHillas2PRecoEvent": {"exe": "ptimehillas2precoevent",
-                      "config_file" : "/home/jacquem/workspace/ctasoft/tmp/defaultConfig.ini"},
-  "StringWriter" : { "filename" : "/tmp/lappipe.log"}
+  "Prun2PTableHillasSvdSet": {"exe": "prun2ptablehillassvdset",
+                              "options": ["-c", "/tmp/conf/defaultConfig.ini",
+                              "--CleaningType", "tailcut"],
+                              "output_dir": "/tmp/prun/"},
+   "PTableHillasSvdSetSplitter": {"exe": "ptablehillasvdsetsplitter",
+                                 "options": ["-c", "/tmp/conf/exampleConfigSplitter.txt"]},
+
+  "PTableHillasSvdSet2PTimeHillasSvdSet": {"exe": "ptablehillassvdset2ptimehillassvdset"},
+
+  "PTimeHillasSvdSet2Precoevent": {"exe": "ptimehillassvdset2precoevent",
+                                   "options": ["-c", "/tmp/conf/defaultConfig.ini"]}
 }
+
+
+
+
+
 

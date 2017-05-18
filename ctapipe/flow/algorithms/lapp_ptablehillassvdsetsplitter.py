@@ -4,12 +4,12 @@ from ctapipe.flow.algorithms.in_out_process import InOutProcess
 
 
 
-class PtimeHillas2PRecoEvent(InOutProcess):
+class PTableHillasSvdSetSplitter(InOutProcess):
 
     exe = Unicode(help='executable').tag(
-        config=True, allow_none=False)
+        config=True)
     options = List(help='executable option').tag(
-        config=True, allow_none=True)
+        config=True)
 
     def init(self):
         super().init(self.exe, self.options)
