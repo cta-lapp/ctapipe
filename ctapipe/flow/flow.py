@@ -97,11 +97,11 @@ class Flow(Tool):
     '''
     description = 'run stages in multiprocessus Flow based framework'
     gui = Bool(False, help='send status to GUI').tag(
-        config=True, allow_none=True)
+        config=True)
     gui_address = Unicode('localhost:5565', help='GUI adress and port').tag(
-        config=True, allow_none=True)
+        config=True)
     mode = Unicode('sequential', help='Flow mode [sequential | multiprocessus]').tag(
-        config=True, allow_none=True)
+        config=True)
     producer_conf = Dict(
         help='producer description: name , module, class',
                                             allow_none=False).tag(config=True)
@@ -111,11 +111,10 @@ class Flow(Tool):
     consumer_conf = Dict(
         default_value={'name': 'CONSUMER', 'class': 'Producer',
                        'module': 'producer',  'prev': 'STAGE1'},
-        help='producer description: name , module, class',
-                allow_none=False).tag(config=True)
+        help='producer description: name , module, class').tag(config=True)
     ports_list = list(range(5555,5600,1))
     zmq_ports = List(ports_list, help='ZMQ ports').tag(
-        config=True, allow_none=True)
+        config=True)
     aliases = Dict({'gui_address': 'Flow.gui_address',
                     'mode':'Flow.mode','gui': 'Flow.gui'})
     examples = ('prompt%> ctapipe-flow \
