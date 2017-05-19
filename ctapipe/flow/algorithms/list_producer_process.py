@@ -17,7 +17,9 @@ class ListProducerProcess(Component):
         self.log.info('--- {} start ---'.format(threading.get_ident()))
         for input_file in os.listdir(self.source_dir):
             self.log.info('--- ListProducerProcess send  {} ---'.format(self.source_dir + "/" + input_file))
-            yield self.source_dir + "/" + input_file
+            yield (self.source_dir + "/" + input_file, "MonoRecoWavelet")
+            yield (self.source_dir + "/" + input_file, "MonoReco")
+
 
     def finish(self):
         self.log.info('--- {} finish ---'.format(threading.get_ident()))
