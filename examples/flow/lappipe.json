@@ -4,42 +4,42 @@
   "Flow": {
       "producer_conf": { "name" : "ListPrunFile",
                          "module": "ctapipe.flow.algorithms.list_producer_process",
-                         "class": "ListProducerProcess","next_steps" : "Prun2PTableHillasSvdSet"},
+                         "class": "ListProducerProcess","next_steps" : "MonoReco"},
 
-      "consumer_conf": { "name" : "PTimeHillasSvdSet2Precoevent",
+      "consumer_conf": { "name" : "StereoReco",
                          "module": "ctapipe.flow.algorithms.lapp_ptimehillassvdset2precoevent",
                          "class": "PTimeHillasSvdSet2Precoevent"},
 
-      "stagers_conf" : [ {"name": "Prun2PTableHillasSvdSet",
+      "stagers_conf" : [ {"name": "MonoReco",
                           "class": "Prun2PTableHillasSvdSet",
                           "module": "ctapipe.flow.algorithms.lapp_prun2ptablehillassvdset",
-                          "next_steps" : "PTableHillasSvdSetSplitter", "nb_process" : 1 },
+                          "next_steps" : "ApplyLayout", "nb_process" : 4 },
 
-                         {"name": "PTableHillasSvdSetSplitter",
+                         {"name": "ApplyLayout",
                           "class": "PTableHillasSvdSetSplitter",
                           "module": "ctapipe.flow.algorithms.lapp_ptablehillassvdsetsplitter",
-                          "next_steps" : "PTableHillasSvdSet2PTimeHillasSvdSet", "nb_process" : 1 },
+                          "next_steps" : "TimeSorter", "nb_process" : 1 },
 
-                         {"name": "PTableHillasSvdSet2PTimeHillasSvdSet",
+                         {"name": "TimeSorter",
                           "class": "PTableHillasSvdSet2PTimeHillasSvdSet",
                           "module": "ctapipe.flow.algorithms.lapp_ptablehillassvdset2ptimehillassvdset",
-                          "next_steps" : "PTimeHillasSvdSet2Precoevent", "nb_process" : 1 }
+                          "next_steps" : "StereoReco", "nb_process" : 1 }
 
                        ]
   },
 
-  "ListProducerProcess": { "source_dir": "/tmp/prun/"},
+  "ListProducerProcess": { "source_dir": "/tmp/work/PRun"},
   "Prun2PTableHillasSvdSet": {"exe": "prun2ptablehillassvdset",
-                              "options": ["-c", "/tmp/conf/defaultConfig.ini",
+                              "options": ["-c", "/tmp/work/defaultConfig.ini",
                               "--CleaningType", "tailcut"],
                               "output_dir": "/tmp/prun/"},
    "PTableHillasSvdSetSplitter": {"exe": "ptablehillasvdsetsplitter",
-                                 "options": ["-c", "/tmp/conf/exampleConfigSplitter.txt"]},
+                                 "options": ["-c", "/tmp/work/CTA.prod3S.3HB1-NG.layout"]},
 
   "PTableHillasSvdSet2PTimeHillasSvdSet": {"exe": "ptablehillassvdset2ptimehillassvdset"},
 
   "PTimeHillasSvdSet2Precoevent": {"exe": "ptimehillassvdset2precoevent",
-                                   "options": ["-c", "/tmp/conf/defaultConfig.ini"]}
+                                   "options": ["-c", "/tmp/work/defaultConfig.ini"]}
 }
 
 
