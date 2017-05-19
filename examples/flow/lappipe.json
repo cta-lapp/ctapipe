@@ -4,44 +4,58 @@
   "Flow": {
       "producer_conf": { "name" : "ListPrunFile",
                          "module": "ctapipe.flow.algorithms.list_producer_process",
-                         "class": "ListProducerProcess","next_steps" : "MonoReco"},
+                         "class": "ListProducerProcess",
+                          "next_steps" : "MonoReco,MonoRecoWavelet"},
 
       "consumer_conf": { "name" : "StereoReco",
-                         "module": "ctapipe.flow.algorithms.lapp_ptimehillassvdset2precoevent",
-                         "class": "PTimeHillasSvdSet2Precoevent"},
+                         "module": "ctapipe.flow.algorithms.stereo_reco",
+                         "class": "StereoReco"},
 
       "stagers_conf" : [ {"name": "MonoReco",
-                          "class": "Prun2PTableHillasSvdSet",
-                          "module": "ctapipe.flow.algorithms.lapp_prun2ptablehillassvdset",
+                          "class": "MonoReco",
+                          "module": "ctapipe.flow.algorithms.mono_reco",
+                          "next_steps" : "ApplyLayout", "nb_process" : 4 },
+
+                         {"name": "MonoRecoWavelet",
+                          "class": "MonoRecoWavelet",
+                          "module": "ctapipe.flow.algorithms.mono_reco_wavelet",
                           "next_steps" : "ApplyLayout", "nb_process" : 4 },
 
                          {"name": "ApplyLayout",
-                          "class": "PTableHillasSvdSetSplitter",
-                          "module": "ctapipe.flow.algorithms.lapp_ptablehillassvdsetsplitter",
+                          "class": "ApplyLayout",
+                          "module": "ctapipe.flow.algorithms.apply_layout",
                           "next_steps" : "TimeSorter", "nb_process" : 1 },
 
                          {"name": "TimeSorter",
-                          "class": "PTableHillasSvdSet2PTimeHillasSvdSet",
-                          "module": "ctapipe.flow.algorithms.lapp_ptablehillassvdset2ptimehillassvdset",
+                          "class": "TimeSorter",
+                          "module": "ctapipe.flow.algorithms.time_sorter",
                           "next_steps" : "StereoReco", "nb_process" : 1 }
 
                        ]
   },
 
-  "ListProducerProcess": { "source_dir": "/tmp/work/PRun"},
-  "Prun2PTableHillasSvdSet": {"exe": "prun2ptablehillassvdset",
-                              "options": ["-c", "/tmp/work/defaultConfig.ini",
-                              "--CleaningType", "tailcut"],
-                              "output_dir": "/tmp/prun/"},
-   "PTableHillasSvdSetSplitter": {"exe": "ptablehillasvdsetsplitter",
-                                 "options": ["-c", "/tmp/work/CTA.prod3S.3HB1-NG.layout"]},
+    "ListProducerProcess": { "source_dir": "/tmp/work/PRun"},
+  "MonoReco": {"exe": "prun2ptablehillassvdset",
+                      "options": ["-c", "/tmp/work/Config/defaultConfig.ini",
+                      "--CleaningType", "tailcut"],
+                      "output_dir": "/tmp/work/MonoReco_Tailcup"},
 
-  "PTableHillasSvdSet2PTimeHillasSvdSet": {"exe": "ptablehillassvdset2ptimehillassvdset"},
+  "MonoRecoWavelet": {"exe": "prun2ptablehillassvdset",
+                      "options": ["-c", "/tmp/work/Config/haarConfig.ini",
+                      "--CleaningType", "Harr"],
+                      "output_dir": "/tmp/work/MonoReco_Wavelet"},
 
-  "PTimeHillasSvdSet2Precoevent": {"exe": "ptimehillassvdset2precoevent",
-                                   "options": ["-c", "/tmp/work/defaultConfig.ini"]}
+  "ApplyLayout": {"exe": "ptablehillasvdsetsplitter",
+                  "options": ["-c", "/tmp/work/Config/prod3b/Paranal/CTA.prod3Sb.3HB9-NG.layout"],
+                   "output_dir": "/tmp/work/ApplyLayout"},
+
+  "TimeSorter": {"exe": "ptablehillassvdset2ptimehillassvdset",
+                "output_dir": "/tmp/work/TimeSorter"},
+
+  "StereoReco": {"exe": "ptimehillassvdset2precoevent",
+                 "options": ["-c", "/tmp/work/Config/defaultConfig.ini"],
+                 "output_dir": "/tmp/work/StereoReco"}
 }
-
 
 
 

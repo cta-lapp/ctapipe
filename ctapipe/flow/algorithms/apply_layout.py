@@ -4,12 +4,15 @@ from ctapipe.flow.algorithms.in_out_process import InOutProcess
 
 
 
-class PTimeHillasSvdSet2Precoevent(InOutProcess):
+class ApplyLayout(InOutProcess):
 
     exe = Unicode(help='executable').tag(
-        config=True, allow_none=False)
+        config=True)
     options = List(help='executable option').tag(
-        config=True, allow_none=True)
+        config=True)
+    output_dir = Unicode("/tmp", help='executable').tag(
+        config=True)
+
 
     def init(self):
-        super().init(self.exe, self.options, out_extension="precoevent")
+        super().init(self.exe, self.options, output_dir=self.output_dir)

@@ -4,15 +4,16 @@ from ctapipe.flow.algorithms.in_out_process import InOutProcess
 
 
 
-class Prun2PTableHillasSvdSet(InOutProcess):
+class TimeSorter(InOutProcess):
 
     exe = Unicode(help='executable').tag(
-        config=True)
+        config=True, allow_none=False)
     options = List(help='executable option').tag(
-        config=True)
-    output_dir = Unicode("/tmp", help='executable').tag(
-        config=True)
+        config=True, allow_none=True)
+    output_dir=Unicode("/tmp", help='executable').tag(
+            config=True)
+
 
     def init(self):
-        super().init(self.exe, self.options, out_extension="ptablehillassvdset",
+        super().init(self.exe, self.options, out_extension="ptimehillassvdset",
                      output_dir=self.output_dir)
