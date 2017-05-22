@@ -13,7 +13,7 @@ class TimeSorter(InOutProcess):
         config=True, allow_none=False)
     options = List(help='executable option').tag(
         config=True, allow_none=True)
-    output_dir=Unicode("/tmp", help='executable').tag(
+    output_dir=Unicode(help='executable').tag(
             config=True)
 
     @validate('exe')

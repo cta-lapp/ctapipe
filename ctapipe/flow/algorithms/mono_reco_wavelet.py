@@ -13,7 +13,7 @@ class MonoRecoWavelet(InOutProcess):
         config=True)
     options = List(help='executable option').tag(
         config=True)
-    output_dir = Unicode("/tmp", help='executable').tag(
+    output_dir = Unicode(help='executable').tag(
         config=True)
 
     @validate('exe')
