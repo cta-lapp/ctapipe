@@ -14,6 +14,6 @@ RUN cd /opt/ctapipe \
  && make doc \
  && cp docker_entrypoint /usr/bin/conda-exec
 
-ENV LD_LIBRARY_PATH=/opt/conda/envs/${CONDA_ENV}/lib:$LD_LIBRARY_PATH
-ENTRYPOINT [ "/usr/bin/tini", "--", "/usr/bin/conda-exec" ]
-CMD ["bash"]
+#ENV LD_LIBRARY_PATH=/opt/conda/envs/${CONDA_ENV}/lib:$LD_LIBRARY_PATH
+#ENTRYPOINT [ "/usr/bin/tini", "--", "/usr/bin/conda-exec" ]
+#CMD ["bash"]
