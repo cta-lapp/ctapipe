@@ -8,7 +8,7 @@ import pytest
 
 
 def test_load_by_name():
-    for cam in ['NectarCam', 'LSTCam','GCT', 'SST-1M']:
+    for cam in ['NectarCam', 'LSTCam','GCT', 'SST-1m']:
         geom = CameraGeometry.from_name(cam)
     geom = CameraGeometry.from_name('HESSI', array_id='HESS')
 
@@ -76,6 +76,11 @@ def test_write_read(tmpdir):
     assert (geom.pix_area == geom2.pix_area).all()
     assert geom.pix_type == geom2.pix_type
 
+def test_known_cameras():
+    cams = CameraGeometry.get_known_camera_names("CTA")
+    assert 'FlashCam' in cams
+    assert len(cams) > 3
 
+    
 if __name__ == '__main__':
     test_to_and_from_table()

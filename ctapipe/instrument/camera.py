@@ -14,10 +14,10 @@ from astropy.table import Table
 from astropy.utils import lazyproperty
 
 from ctapipe.io.files import get_file_type
-from ctapipe.utils.datasets import get_dataset
+from ctapipe.utils import get_dataset
 from ctapipe.utils.linalg import rotation_matrix_2d
 from scipy.spatial import cKDTree as KDTree
-from ctapipe.utils.datasets import get_dataset
+from ctapipe.utils import get_dataset
 
 __all__ = ['CameraGeometry',
            'get_camera_types',
@@ -181,10 +181,10 @@ class CameraGeometry:
         """
         names = []
         pattern = "{}-(.*)\.camgeom.fits".format(array_id)
-        for resource in resource_listdir('ctapipe_resources', '/'):
+        for resource in resource_listdir('ctapipe_resources', ''):
             match = re.match(pattern, resource)
             if match:
-                names.append(match[1])
+                names.append(match.group(1))
         return names
 
 
