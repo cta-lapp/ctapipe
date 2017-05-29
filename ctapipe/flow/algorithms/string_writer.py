@@ -1,6 +1,11 @@
-from ctapipe.core import Component
-from traitlets import Unicode
 from time import sleep
+
+from ctapipe.core.traits import (
+    traits_expand_path,
+    Unicode,
+)
+from ctapipe.core import Component
+
 
 class StringWriter(Component):
 
@@ -22,3 +27,8 @@ class StringWriter(Component):
     def finish(self):
         self.file.close()
         self.log.debug("--- StringWriter finish---")
+
+    @validate('filename')
+    @traits_expand_path
+    def _check_filename(self, proposal):
+        return proposal['value']

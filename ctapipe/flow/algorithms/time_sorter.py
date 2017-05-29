@@ -1,7 +1,10 @@
-from traitlets import Unicode
-from traitlets import List
+from ctapipe.core.traitlets import (
+    List,
+    traits_expand_path,
+    Unicode,
+    validate,
+)
 from ctapipe.flow.algorithms.in_out_process import InOutProcess
-
 
 
 class TimeSorter(InOutProcess):
@@ -10,9 +13,13 @@ class TimeSorter(InOutProcess):
         config=True, allow_none=False)
     options = List(help='executable option').tag(
         config=True, allow_none=True)
-    output_dir=Unicode("/tmp", help='executable').tag(
+    output_dir=Unicode(help='executable').tag(
             config=True)
 
+    @validate('exe')
+    @traits_expand_path
+    def _check_exe(self, proposal):
+        return proposal['value']
 
     def init(self):
         super().init(self.exe, self.options, out_extension="ptimehillassvdset",
