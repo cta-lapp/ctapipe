@@ -35,7 +35,7 @@ def traits_expects_directory(func):
         real_path = osp.realpath(path)
         if not osp.exists(real_path):
             raise TraitError('Path does not exists: %s' % real_path)
-        if not osp.isfile(real_path):
+        if not osp.isdir(real_path):
             raise TraitError('Path is not a directory: %s' % real_path)
         return func(instance, proposal)
     return _wrapper
