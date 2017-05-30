@@ -1,6 +1,6 @@
 from ctapipe.core import Component
 from os.path import isdir
-from os import mkdirs
+from os import makedirs
 from subprocess import Popen
 from ctapipe.flow.algorithms.build_command import build_command
 
@@ -30,7 +30,7 @@ class InOutProcess(Component):
         self.log.info("--- InOutProcess output_dir {} ".format(self.output_dir))
         if self.output_dir:
             if not isdir(self.output_dir):
-                mkdirs(self.output_dir)
+                makedirs(self.output_dir)
 
         if self.exe:
             return True
