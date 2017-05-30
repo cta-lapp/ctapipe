@@ -1,4 +1,4 @@
-from ctapipe.core.traitlets import (
+from ctapipe.core.traits import (
     List,
     traits_expand_path,
     Unicode,

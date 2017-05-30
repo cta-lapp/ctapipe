@@ -2,6 +2,7 @@ from ctapipe.core.traits import (
     List,
     traits_expand_path,
     Unicode,
+    validate,
 )
 from ctapipe.flow.algorithms.in_out_process import InOutProcess
 
