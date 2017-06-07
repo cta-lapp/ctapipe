@@ -9,12 +9,9 @@ from ctapipe.flow.algorithms.in_out_process import InOutProcess
 
 class TimeSorter(InOutProcess):
 
-    exe = Unicode(help='executable').tag(
-        config=True, allow_none=False)
-    options = List(help='executable option').tag(
-        config=True, allow_none=True)
-    output_dir=Unicode(help='executable').tag(
-            config=True)
+    exe = Unicode(help='executable', allow_none=False).tag(config=True)
+    options = List(help='executable option', allow_none=True).tag(config=True)
+    output_dir=Unicode(help='executable').tag(config=True)
 
     @validate('exe')
     @traits_expand_path
