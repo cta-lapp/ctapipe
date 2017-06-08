@@ -16,7 +16,3 @@ RUN cd /opt/ctapipe \
  && source activate ${CONDA_ENV} \
  && HDF5_DIR=/usr make develop \
  && cp docker_entrypoint /usr/bin/conda-exec
-
-#ENV LD_LIBRARY_PATH=/opt/conda/envs/${CONDA_ENV}/lib:$LD_LIBRARY_PATH
-#ENTRYPOINT [ "/usr/bin/tini", "--", "/usr/bin/conda-exec" ]
-#CMD ["bash"]
