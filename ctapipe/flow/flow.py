@@ -99,7 +99,7 @@ class Flow(Tool):
     gui = Bool(False, help='send status to GUI').tag( config=True)
     gui_address = Unicode('localhost:5565', help='GUI adress and port')\
                                                   .tag(config=True)
-    mode = Enum(['sequential','multiprocess'], default_vallue='sequential',
+    mode = Enum(['sequential','multiprocess'], default_value='sequential',
                 help='Flow mode', allow_none=True).tag(config=True)
     producer_conf = Dict(help='producer description: name , module, class',
                          allow_none=False).tag(config=True)
