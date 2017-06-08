@@ -1,7 +1,7 @@
 FROM ctalapp/fedora-devel:25
 MAINTAINER CTA LAPP <cta-pipeline-lapp@in2p3.fr>
 
-ENV CONDA_ENV=cta-dev
+ENV CONDA_ENV=ctadev
 
 RUN mkdir -p /opt/ctapipe
 ADD environment.yml /opt/ctapipe/
