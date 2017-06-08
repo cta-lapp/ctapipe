@@ -1,3 +1,5 @@
+import os.path as osp
+
 def build_command(executable,  input_file, output_dir=None,
                   out_extension=None, source_dir=None, options=None, append_to_file = None):
     # remove full path before file name
@@ -20,5 +22,6 @@ def build_command(executable,  input_file, output_dir=None,
         cmd.append(output_file)
     if options:
         for option in options:
+            option = osp.expanduser(osp.expandvars(option))
             cmd.append(option)
     return cmd, output_file
