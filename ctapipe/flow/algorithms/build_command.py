@@ -17,9 +17,9 @@ def build_command(executable,  input_file, output_dir=None,
         input_file = source_dir + '/' + input_file
     cmd = [executable, '-i', input_file]
     if output_dir:
-        cmd.append("-o")
-        output_file = output_dir + "/" + output_file
-        cmd.append(output_file)
+        output_file = osp.join(output_dir, output_file)
+    cmd.append("-o")
+    cmd.append(output_file)
     if options:
         for option in options:
             option = osp.expanduser(osp.expandvars(option))
