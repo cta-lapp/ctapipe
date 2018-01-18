@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "Flow": {
+      "producer_conf": { "name" : "ListProducerProcess", "module": "ctapipe.flow.algorithms.list_producer_process",
+           "class": "ListProducerProcess","next_steps" : "CountWord,WaitAndTotal"},
+
+      "consumer_conf": { "name" : "WaitAndTotal", "module": "ctapipe.flow.algorithms.wait_and_total",
+                "class": "WaitAndTotal"},
+
+      "stagers_conf" : [ {"name": "CountWord", "class": "CountWord",
+                                        "module": "ctapipe.flow.algorithms.count_word",
+                                        "next_steps" : "WaitAndTotal", "nb_process" : 1}
+                        ]
+  },
+
+  "ListProducerProcess": { "source_dir": "/home/jacquem/workspace/ctasoft/ctapipe"},
+  "WaitAndTotal": { "filename": "/tmp/map_reduce.txt"}
+
+}
