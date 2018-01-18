@@ -16,10 +16,9 @@ class StringWriter(Component):
         self.log.debug("--- StringWriter init filename {}---".format(self.filename))
         return True
 
-    def run(self, object):
-        self.file.write(str(object) + "\n")
-        sleep(.5)
-        self.log.debug('%object' % 'StringWriter write {}')
+    def run(self, obj):
+        self.file.write(str(obj) + "\n")
+        self.log.debug('StringWriter write {}'.format(obj))
 
     def finish(self):
         self.file.close()

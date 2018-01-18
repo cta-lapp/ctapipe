@@ -14,7 +14,7 @@ class CountWord(Component):
             self.log.debug("countWord receive {}".format(filepath))
             with open(filepath) as f:
                 return len(f.read())
-        return 0
+
 
     def finish(self):
         self.log.debug("--- CountWord finish ---")

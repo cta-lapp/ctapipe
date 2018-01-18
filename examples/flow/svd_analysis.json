@@ -1,0 +1,66 @@
+{
+  "version": 1,
+
+  "Flow": {
+        "producer_conf": { "name" : "ListFiles", "module": "ctapipe.flow.algorithms.list_files",
+           "class": "ListFiles","next_steps" : "PCalibRun2PTableHillasSV"},
+
+        "consumer_conf": { "name" : "PlotSVDResult", "module": "ctapipe.flow.algorithms.plot_svd_result",
+                "class": "PlotSVDResult"},
+
+        "stagers_conf" : [ {"name": "PCalibRun2PTableHillasSV",
+                          "class": "PCalibRun2PTableHillasSV",
+                          "module": "ctapipe.flow.algorithms.pcalibrun2ptablehillassv",
+                          "next_steps" : "PTableHillasSVSplitter", "nb_process" : 1 },
+
+                          {"name": "PTableHillasSVSplitter",
+                          "class": "PTableHillasSVSplitter",
+                          "module": "ctapipe.flow.algorithms.ptablehillassvsplitter",
+                          "next_steps" : "PTableHillasSV2PTimeHillasSV", "nb_process" : 1 },
+
+                          {"name": "PTableHillasSV2PTimeHillasSV",
+                          "class": "PTableHillasSV2PTimeHillasSV",
+                          "module": "ctapipe.flow.algorithms.ptablehillassv2ptimehillassv",
+                          "next_steps" : "PTimeHillasSV2PRecoEvent", "nb_process" : 1 },
+
+                          {"name": "PTimeHillasSV2PRecoEvent",
+                          "class": "PTimeHillasSV2PRecoEvent",
+                          "module": "ctapipe.flow.algorithms.ptimehillassv2precoevent",
+                          "next_steps" : "PlotSVDResult", "nb_process" : 1 }
+
+
+
+
+                       ]
+  },
+
+  "ListFiles": { "source_dir": "/tmp/work/input",
+                 "extension" : "pcalibrun"},
+
+  "PCalibRun2PTableHillasSV": {"exe": "pcalibrun2ptablehillassv",
+                      "options": ["-c", "/tmp/work/config/wavelet.ini"],
+                      "output_dir": "/tmp/work/svd_analysis"},
+
+  "PTableHillasSVSplitter": {"exe": "ptablehillassvsplitter",
+                      "options": ["-c", "/tmp/work/config/CTA.prod3S.3HB1-NG.layout"],
+                      "output_dir": "/tmp/work/svd_analysis"},
+
+  "PTableHillasSV2PTimeHillasSV" : {"exe": "ptablehillassv2ptimehillassv",
+                      "options": ["-c", "/tmp/work/config/wavelet.ini"],
+                      "output_dir": "/tmp/work/svd_analysis"},
+
+  "PTimeHillasSV2PRecoEvent" : {"exe": "ptimehillassv2precoevent",
+                      "options": ["-c", "/tmp/work/config/wavelet.ini",
+                      "-k", "/tmp/work/config/ModelSVD_Point_Fine.ptabsvdtel"],
+                      "output_dir": "/tmp/work/svd_analysis"},
+
+   "PlotSVDResult": { "input_dir": "/tmp/work/svd_analysis",
+                      "psimu_dir": "/tmp/work/psimu_dir",
+                      "output_dir": "/tmp/work/svd_plots_result"}
+
+}
+
+
+
+
+
