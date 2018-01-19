@@ -6,6 +6,10 @@ from os.path import isdir, join, isfile
 from os import makedirs, listdir, symlink
 
 
+"""
+When connecting thanks to ssh you need to add -Y or -X option, otherwise this script with fail due to matplotlib
+"""
+
 
 
 class PlotSVDResult(Component):
@@ -35,10 +39,14 @@ class PlotSVDResult(Component):
                       isfile(join(self.psimu_dir, f)) and
                       f.split('.')[-1] == 'psimu']
 
-        for src in files_list:
-            self.log.info('src {}, self.input_dir {}'.
-                          format(self.psimu_dir + '/' + src, self.input_dir + '/' + src))
-            symlink(self.psimu_dir + '/' + src, self.input_dir + '/' + src )
+        try:
+            for src in files_list:
+                self.log.info('src {}, self.input_dir {}'.
+                            format(self.psimu_dir + '/' + src, self.input_dir + '/' + src))
+                symlink(self.psimu_dir + '/' + src, self.input_dir + '/' + src )
+        
+        except FileExistsError:
+            pass
 
 
         self.log.info("--- PlotSVDResult start plotting from directory {} ---".format(self.input_dir))

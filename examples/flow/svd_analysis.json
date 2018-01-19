@@ -34,29 +34,29 @@
                        ]
   },
 
-  "ListFiles": { "source_dir": "/tmp/work/input",
+  "ListFiles": { "source_dir": "/lapp_data/cta/Data/MC/lapalma/Prod3b/PCalibRun/gamma/Test",
                  "extension" : "pcalibrun"},
 
-  "PCalibRun2PTableHillasSV": {"exe": "pcalibrun2ptablehillassv",
-                      "options": ["-c", "/tmp/work/config/wavelet.ini"],
-                      "output_dir": "/tmp/work/svd_analysis"},
+"PCalibRun2PTableHillasSV": {"exe": "pcalibrun2ptablehillassv",
+                      "options": ["-c", "/grid_sw/soft-dev-cta/maurin/soft/HiPePiPe/Pipeline/CleaningConfigs/wavelet.ini"],
+                      "output_dir": "/grid_sw/soft-dev-cta/Production/SVD_Analysis/Intermediate_files"},
 
   "PTableHillasSVSplitter": {"exe": "ptablehillassvsplitter",
-                      "options": ["-c", "/tmp/work/config/CTA.prod3S.3HB1-NG.layout"],
-                      "output_dir": "/tmp/work/svd_analysis"},
+                      "options": ["-c", "/grid_sw/soft-dev-cta/maurin/soft/HiPePiPe/Pipeline/Layouts//CTA.prod3Nb.3AL4-BN15.layout"],
+                      "output_dir": "/grid_sw/soft-dev-cta/Production/SVD_Analysis/Intermediate_files"},
 
   "PTableHillasSV2PTimeHillasSV" : {"exe": "ptablehillassv2ptimehillassv",
-                      "options": ["-c", "/tmp/work/config/wavelet.ini"],
-                      "output_dir": "/tmp/work/svd_analysis"},
+                      "options": ["-c", "/grid_sw/soft-dev-cta/maurin/soft/HiPePiPe/Pipeline/CleaningConfigs/wavelet.ini"],
+                      "output_dir": "/grid_sw/soft-dev-cta/Production/SVD_Analysis/Intermediate_files"},
 
   "PTimeHillasSV2PRecoEvent" : {"exe": "ptimehillassv2precoevent",
-                      "options": ["-c", "/tmp/work/config/wavelet.ini",
-                      "-k", "/tmp/work/config/ModelSVD_Point_Fine.ptabsvdtel"],
-                      "output_dir": "/tmp/work/svd_analysis"},
+                      "options": ["-c", "/grid_sw/soft-dev-cta/maurin/soft/HiPePiPe/Pipeline/CleaningConfigs/wavelet.ini",
+                      "-k", "/grid_sw/soft-dev-cta/maurin/SVD/script/Config/timehillassv/ModelSVD_Point_Fine.ptabsvdtel"],
+                      "output_dir": "/grid_sw/soft-dev-cta/Production/SVD_Analysis/Intermediate_files"},
 
-   "PlotSVDResult": { "input_dir": "/tmp/work/svd_analysis",
-                      "psimu_dir": "/tmp/work/psimu_dir",
-                      "output_dir": "/tmp/work/svd_plots_result"}
+   "PlotSVDResult": { "input_dir": "/grid_sw/soft-dev-cta/Production/SVD_Analysis/Intermediate_files",
+                      "psimu_dir": "/lapp_data/cta/Data/MC/lapalma/Prod3b/PCalibRun/gamma/gamma_point_direction/test",
+                      "output_dir": "/grid_sw/soft-dev-cta/Production/SVD_Analysis/Plots_result"}
 
 }
 

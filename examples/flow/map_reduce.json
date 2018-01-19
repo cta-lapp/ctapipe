@@ -13,7 +13,7 @@
                         ]
   },
 
-  "ListProducerProcess": { "source_dir": "/home/jacquem/workspace/ctasoft/ctapipe"},
+  "ListProducerProcess": { "source_dir": "/grid_sw/soft-dev-cta/Pipeline/ctasoft/ctapipe"},
   "WaitAndTotal": { "filename": "/tmp/map_reduce.txt"}
 
 }
