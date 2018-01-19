@@ -1,3 +1,5 @@
+import matplotlib as mpl
+mpl.use('Agg')  # Thanks to this line, this script can be run on a node without X server.
 from ctapipe.core import Component
 from traitlets import Unicode
 import hipecta.data as cd
