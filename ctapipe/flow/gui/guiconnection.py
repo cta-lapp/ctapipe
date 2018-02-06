@@ -7,8 +7,10 @@ from zmq import POLLIN
 from zmq import SUBSCRIBE
 from threading import Thread
 from pickle import loads
-from PyQt4 import QtCore
-from PyQt4.QtGui import QLabel
+#from PyQt4 import QtCore
+from PyQt5 import QtCore
+#from PyQt4.QtGui import QLabel
+from PyQt5.QtWidgets import QLabel
 from time import time
 
 class GuiConnexion(Thread, QtCore.QObject):

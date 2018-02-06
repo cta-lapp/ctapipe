@@ -1,7 +1,7 @@
 from graphviz import Digraph
-from PyQt4.QtGui import QWidget
-from PyQt4.QtGui import QPainter
-from PyQt4.QtSvg import QSvgRenderer
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QPainter
+from PyQt5.QtSvg import QSvgRenderer
 from ctapipe.flow.stager_rep import StagerRep
 
 class GraphWidget(QWidget):
