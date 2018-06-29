@@ -7,14 +7,10 @@ from astropy.coordinates import Angle
 from ctapipe.core import Component
 
 
-
-
-
 '''
 TO:
 -1 Set a config by telescope_type
-updateRecoTemporaryWithRefShape and createRecoTemporary
-create a temporaire without gain and pedestal
+-Fill ctapipe event container r1, and dl0
 '''
 
 class Telescope_info():
@@ -91,12 +87,9 @@ class TelescopeReco(Component):
         Returns
         -------
         """
-
-
-
-        pixels_position = np.ascontiguousarray(np.transpose([telescope_description.camera.pix_x.to(u.m).value,
-                                                             telescope_description.camera.pix_y.to(
-                                                                           u.m).value]).astype(np.float32))
+        pixels_position = np.ascontiguousarray(
+            np.transpose([telescope_description.camera.pix_x.to(u.m).value,
+                          telescope_description.camera.pix_y.to(u.m).value]).astype(np.float32))
 
         gain_high = camera.dc_to_pe[0]
         try:
@@ -112,23 +105,20 @@ class TelescopeReco(Component):
 
         reference_shape = camera.reference_pulse_shape[0].astype(np.float32)
 
-
         reco_temporary = hipecta.core.createRecoTemporary(number_samples,
-                                         0,
-                                         pixels_position,
-                                         gain_high,
-                                         gain_low,
-                                         pedestal_high,
-                                         pedestal_low,
-                                         )
+                                                          0,
+                                                          pixels_position,
+                                                          gain_high,
+                                                          gain_low,
+                                                          pedestal_high,
+                                                          pedestal_low,
+                                                          )
 
         hipecta.core.updateRecoTemporaryWithRefShape(reco_temporary, reference_shape, 0.1)
-
         self.telescope_info[telescope_id] = Telescope_info(reco_temporary)
 
-
-
-    def getHillasParametersContainer(self, hillas_param):
+    @staticmethod
+    def getHillasParametersContainer(hillas_param):
         """
         convert tuple of hillas parameter (from HiPeCTA to ctapipe HillasParametersContainer
 
