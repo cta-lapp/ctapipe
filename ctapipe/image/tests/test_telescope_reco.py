@@ -5,13 +5,13 @@ import numpy as np
 
 
 def test_hillas():
-    filename=get_dataset("gamma_test_large.simtel.gz")
-    reco = TelescopeReco(waveletThreshold=3, hillasThresholdSignalTel=500)
+    filename = get_dataset("gamma_test_large.simtel.gz")
+    reco = TelescopeReco(wavelet_threshold=3, hillas_threshold_signal_tel=500)
     with event_source(filename) as source:
         for event in source:
             for tel_id in list(event.dl0.tels_with_data):
                 tabHillas, reco_status = reco.process(tel_id, event)
-                ctapipe_hillas = reco.getHillasParametersContainer(tabHillas)
+                ctapipe_hillas = reco.get_hillas_parameters_ontainer(tabHillas)
                 assert np.isclose(ctapipe_hillas.intensity, 220.92934)
                 assert np.isclose(ctapipe_hillas.kurtosis, -2.9893093)
                 assert np.isclose(ctapipe_hillas.length.value, 0.03703341)

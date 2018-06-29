@@ -6,14 +6,14 @@ from ctapipe.io.containers import HillasParametersContainer
 from astropy.coordinates import Angle
 from ctapipe.core import Component
 
-
 '''
 TO:
 -1 Set a config by telescope_type
 -Fill ctapipe event container r1, and dl0
 '''
 
-class Telescope_info():
+
+class TelescopeInfo:
     def __init__(self, reco_temporary):
         """
         Attributes
@@ -27,7 +27,6 @@ class Telescope_info():
             newMatCalibratedSignal, matNeighbourPixelSum, matSignalQuad,
             newMatKeepSignalQuad
         """
-
         self.reco_temporary = reco_temporary
 
 
@@ -37,9 +36,9 @@ class TelescopeReco(Component):
     """
 
     def __init__(self, config=None, tool=None,
-                    waveletThreshold=3,
-                    hillasThresholdSignalTel=500,
-                     **kwargs):
+                 wavelet_threshold=3,
+                 hillas_threshold_signal_tel=500,
+                 **kwargs):
         """
         handle the r0 to dl1 reconstruction. Calibration/Integration/Cleaning/Hillas.
 
@@ -67,9 +66,8 @@ class TelescopeReco(Component):
 
         self.telescope_info = dict()
         self.cut_config = hipecta.core.PConfigCut()
-        self.cut_config.waveletThreshold = waveletThreshold
-        self.cut_config.hillasThresholdSignalTel = hillasThresholdSignalTel
-
+        self.cut_config.waveletThreshold = wavelet_threshold
+        self.cut_config.hillasThresholdSignalTel = hillas_threshold_signal_tel
 
     def add_telescope(self, telescope_id, number_samples,
                       telescope_description: ctapipe.instrument.TelescopeDescription,
@@ -80,9 +78,9 @@ class TelescopeReco(Component):
         Parameters
         ----------
         telescope_id: int
-        TelescopeDescription: `ctapipe.instrument.telescope.TelescopeDescription`
-        pixels_position : numpy ndarray
-            telescope's pixels position: (x,y) of shape (number of pixels, 2)
+        number_samples: int
+        telescope_description: `ctapipe.instrument.telescope.TelescopeDescription`
+        camera: ctapipe.io.containers.MCCameraEventContainer
 
         Returns
         -------
@@ -94,13 +92,13 @@ class TelescopeReco(Component):
         gain_high = camera.dc_to_pe[0]
         try:
             gain_low = camera.dc_to_pe[1]
-        except:
+        except IndexError:
             gain_low = camera.dc_to_pe[0]
 
         pedestal_high = camera.pedestal[0]
         try:
             pedestal_low = camera.pedestal[1]
-        except:
+        except IndexError:
             pedestal_low = camera.pedestal[0]
 
         reference_shape = camera.reference_pulse_shape[0].astype(np.float32)
@@ -115,10 +113,10 @@ class TelescopeReco(Component):
                                                           )
 
         hipecta.core.updateRecoTemporaryWithRefShape(reco_temporary, reference_shape, 0.1)
-        self.telescope_info[telescope_id] = Telescope_info(reco_temporary)
+        self.telescope_info[telescope_id] = TelescopeInfo(reco_temporary)
 
     @staticmethod
-    def getHillasParametersContainer(hillas_param):
+    def get_hillas_parameters_ontainer(hillas_param):
         """
         convert tuple of hillas parameter (from HiPeCTA to ctapipe HillasParametersContainer
 
@@ -130,20 +128,18 @@ class TelescopeReco(Component):
         ctapipe HillasParametersContainer
         """
         return HillasParametersContainer(intensity=hillas_param[hipecta.core.getHillasImageAmplitude()],
-                                        x=hillas_param[hipecta.core.getHillasGx()] * u.m,
-                                        y=hillas_param[hipecta.core.getHillasGy()] * u.m,
-                                        width=np.sqrt(2) * hillas_param[hipecta.core.getHillasLength()] * u.m,
-                                        length=np.sqrt(2) * hillas_param[hipecta.core.getHillasWidth()] * u.m,
-                                        r=np.sqrt(hillas_param[hipecta.core.getHillasGx()] ** 2
-                                                  + hillas_param[hipecta.core.getHillasGy()] ** 2) * u.m,
-                                        phi=Angle(hillas_param[hipecta.core.getHillasPhi()] * u.rad),
-                                        psi=Angle(
+                                         x=hillas_param[hipecta.core.getHillasGx()] * u.m,
+                                         y=hillas_param[hipecta.core.getHillasGy()] * u.m,
+                                         width=np.sqrt(2) * hillas_param[hipecta.core.getHillasLength()] * u.m,
+                                         length=np.sqrt(2) * hillas_param[hipecta.core.getHillasWidth()] * u.m,
+                                         r=np.sqrt(hillas_param[hipecta.core.getHillasGx()] ** 2
+                                         + hillas_param[hipecta.core.getHillasGy()] ** 2) * u.m,
+                                         phi=Angle(hillas_param[hipecta.core.getHillasPhi()] * u.rad),
+                                         psi=Angle(
                                         (hillas_param[hipecta.core.getHillasDirection()] + np.pi / 2) * u.rad),
-                                            # miss = 0,
-                                        skewness=hillas_param[hipecta.core.getHillassSewness()],
-                                        kurtosis=hillas_param[hipecta.core.getHillasKurtosis()]
+                                         skewness=hillas_param[hipecta.core.getHillassSewness()],
+                                         kurtosis=hillas_param[hipecta.core.getHillasKurtosis()]
                                         )
-
 
     def _process(self, telescope_id, waveform):
         """
@@ -159,11 +155,7 @@ class TelescopeReco(Component):
         """
         reco_temporary = self.telescope_info[telescope_id].reco_temporary
         hillas_parameters, event_reco = hipecta.core.fullAnalysis(waveform, self.cut_config, reco_temporary)
-
         return hillas_parameters, event_reco
-
-
-
 
     def process(self, telescope_id, event):
         """
@@ -171,12 +163,13 @@ class TelescopeReco(Component):
 
         Parameters
         ----------
+        telescope_id: int
         event: ctapipe.io.containers.DataContainer
         Returns
         -------
         Hillas parameters
         """
-        if not telescope_id in self.telescope_info:
+        if telescope_id not in self.telescope_info:
             self.add_telescope(telescope_id, event.r0.tel[telescope_id].num_samples,
                                event.inst.subarray.tel[telescope_id],
                                event.mc.tel[telescope_id])
