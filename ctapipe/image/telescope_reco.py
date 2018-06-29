@@ -4,6 +4,11 @@ import hipecta.core
 import astropy.units as u
 from ctapipe.io.containers import HillasParametersContainer
 from astropy.coordinates import Angle
+from ctapipe.core import Component
+
+
+
+
 
 '''
 TO:
@@ -13,29 +18,61 @@ create a temporaire without gain and pedestal
 '''
 
 class Telescope_info():
-    def __init__(self, hipecta_tmp):
+    def __init__(self, reco_temporary):
         """
+        Attributes
+        ----------
+        reco_temporary: hipecta.core.PRecoTemporary
         Parameters
         ----------
-         number_samples: int
-            telescope number of samples
-        pixels_position : numpy ndarray
-            telescope's pixels position: (x,y) of shape (number of pixels, 2)
+        reco_temporary: hipecta.core.PRecoTemporary containing:
+            focalLength, matNeighbourQuadSum, nbSliceBeforPeak, matCalibratedSignal,
+            matNeighbourSlice, nbSliceWindow, matKeepSignalQuad, matSignal,
+            newMatCalibratedSignal, matNeighbourPixelSum, matSignalQuad,
+            newMatKeepSignalQuad
         """
 
-        self.hipecta_tmp = hipecta_tmp
+        self.reco_temporary = reco_temporary
 
 
-
-
-class TelescopeReco():
-    """    process a raw telescope waveform (R1) to DL1 (Hillas parameters)
+class TelescopeReco(Component):
     """
-    def __init__(self):
+    Process a raw telescope waveform (R1) to DL1 (Hillas parameters)
+    """
+
+    def __init__(self, config=None, tool=None,
+                    waveletThreshold=3,
+                    hillasThresholdSignalTel=500,
+                     **kwargs):
+        """
+        handle the r0 to dl1 reconstruction. Calibration/Integration/Cleaning/Hillas.
+
+        Attributes
+        ----------
+        telescope_info : dictionary
+            Python dict. key is telescope id. Value is an instance of Telscope_info
+        Parameters
+        ----------
+        config : traitlets.loader.Config
+            Configuration specified by config file or cmdline arguments.
+            Used to set traitlet values.
+            Set to None if no configuration to pass.
+        tool : ctapipe.core.Tool or None
+            Tool executable that is calling this component.
+            Passes the correct logger to the component.
+            Set to None if no Tool to pass.
+        waveletThreshold : int
+            Wavelet cleaning threshold.
+        hillasThresholdSignalTel: int
+            The hillas threshold
+        kwargs
+        """
+        super().__init__(config=config, parent=tool, **kwargs)
+
         self.telescope_info = dict()
-        self.config = hipecta.core.PConfigCut()
-        self.config.waveletThreshold = 3
-        self.config.hillasThresholdSignalTel = 500
+        self.cut_config = hipecta.core.PConfigCut()
+        self.cut_config.waveletThreshold = waveletThreshold
+        self.cut_config.hillasThresholdSignalTel = hillasThresholdSignalTel
 
 
     def add_telescope(self, telescope_id, number_samples,
@@ -76,7 +113,7 @@ class TelescopeReco():
         reference_shape = camera.reference_pulse_shape[0].astype(np.float32)
 
 
-        hipecta_tmp = hipecta.core.createRecoTemporary(number_samples,
+        reco_temporary = hipecta.core.createRecoTemporary(number_samples,
                                          0,
                                          pixels_position,
                                          gain_high,
@@ -85,9 +122,9 @@ class TelescopeReco():
                                          pedestal_low,
                                          )
 
-        hipecta.core.updateRecoTemporaryWithRefShape(hipecta_tmp, reference_shape, 0.1)
+        hipecta.core.updateRecoTemporaryWithRefShape(reco_temporary, reference_shape, 0.1)
 
-        self.telescope_info[telescope_id] = Telescope_info(hipecta_tmp)
+        self.telescope_info[telescope_id] = Telescope_info(reco_temporary)
 
 
 
@@ -130,8 +167,8 @@ class TelescopeReco():
         -------
         Hillas parameters
         """
-        hipecta_tmp = self.telescope_info[telescope_id].hipecta_tmp
-        hillas_parameters, event_reco = hipecta.core.fullAnalysis(waveform, self.config, hipecta_tmp)
+        reco_temporary = self.telescope_info[telescope_id].reco_temporary
+        hillas_parameters, event_reco = hipecta.core.fullAnalysis(waveform, self.cut_config, reco_temporary)
 
         return hillas_parameters, event_reco
 

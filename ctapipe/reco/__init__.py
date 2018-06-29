@@ -3,8 +3,6 @@ from .HillasReconstructor import HillasReconstructor, Reconstructor
 from .ImPACT import ImPACTReconstructor
 from .energy_regressor import EnergyRegressor
 from .shower_max import ShowerMaxEstimator
-from .telescope_reco import TelescopeReco
-
 
 __all__ = ['HillasReconstructor', 'Reconstructor', 'ImPACTReconstructor',
-           'EnergyRegressor', 'ShowerMaxEstimator', 'TelescopeReco']
+           'EnergyRegressor', 'ShowerMaxEstimator']
