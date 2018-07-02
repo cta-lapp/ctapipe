@@ -157,7 +157,7 @@ class TelescopeReco(Component):
         hillas_parameters, event_reco = hipecta.core.fullAnalysis(waveform, self.cut_config, reco_temporary)
         return hillas_parameters, event_reco
 
-    def process(self, telescope_id, event):
+    def process(self, telescope_id, event, fill_container=False):
         """
         Process a ctapipe r0 event and return its Hillas parameters
 
@@ -165,6 +165,8 @@ class TelescopeReco(Component):
         ----------
         telescope_id: int
         event: ctapipe.io.containers.DataContainer
+        fill_container: bool
+
         Returns
         -------
         Hillas parameters
@@ -176,4 +178,15 @@ class TelescopeReco(Component):
 
         waveform = event.r0.tel[telescope_id].waveform
         matslice = np.ascontiguousarray(waveform[0].T)
+
+        if fill_container:
+            reco = self.telescope_info[telescope_id].reco_temporary
+            # Store into event container
+            event.dl0.tel[telescope_id].waveform = waveform# no reduction apply
+            event.dl1.tel[telescope_id].image = reco.matCalibratedSignal
+            event.dl1.tel[telescope_id].extracted_samples = None
+            event.dl1.tel[telescope_id].cleaned = None
+            event.dl1.tel[telescope_id].peakpos = reco.tabPosMax
+
+
         return self._process(telescope_id, matslice)
