@@ -13,7 +13,7 @@ class Add(Component):
         return True
 
     def run(self, x):
-        sleep(.01)
+        sleep(.5)
         self.log.debug("Add receive {} ".format(x))
         return x
 
