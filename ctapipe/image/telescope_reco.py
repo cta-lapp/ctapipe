@@ -183,7 +183,7 @@ class TelescopeReco(Component):
             reco = self.telescope_info[telescope_id].reco_temporary
             # Store into event container
             event.dl0.tel[telescope_id].waveform = waveform# no reduction apply
-            event.dl1.tel[telescope_id].image = reco.matCalibratedSignal
+            event.dl1.tel[telescope_id].image = reco.tabCalibSignal
             event.dl1.tel[telescope_id].extracted_samples = None
             event.dl1.tel[telescope_id].cleaned = None
             event.dl1.tel[telescope_id].peakpos = reco.tabPosMax
