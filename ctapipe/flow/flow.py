@@ -302,8 +302,8 @@ class Flow(Tool):
                                                     port_in=stager_step.port_in,
                                                     connections=stager_step.connections,
                                                     main_connection_name=stager_step.
-                                                    main_connection_name,
-                                                    config=conf)
+                                                    main_connection_name)#,
+                                                    #config=conf)
                 except FlowError as e:
                     self.log.error(e)
                     return False
@@ -322,8 +322,8 @@ class Flow(Tool):
         try:
             consumer_zmq = self.instantiation(self.consumer_step.name,
                                               self.CONSUMER,
-                                              port_in=self.consumer_step.port_in,
-                                              config=self.consumer_conf)
+                                              port_in=self.consumer_step.port_in)#,
+                                              #config=self.consumer_conf)
         except FlowError as e:
             self.log.error(e)
             return False
@@ -354,13 +354,18 @@ class Flow(Tool):
         Otherwise False
         """
         # PRODUCER
+        print('DEBUG configure_producer')
         try:
             producer_zmq = self.instantiation(self.producer_step.name,
                                               self.PRODUCER,
                                               connections=self.producer_step.connections,
                                               main_connection_name=self.producer_step.
-                                              main_connection_name,
-                                              config=self.producer_conf)
+                                              main_connection_name)#,
+                                              #config=self.producer_conf)
+
+
+
+
         except FlowError as e:
             self.log.error(e)
             return False

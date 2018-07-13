@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "Flow": {
+
+     "producer_conf": { "name" : "ListProducerProcess",
+                         "module": "ctapipe.flow.algorithms.list_producer_process",
+                         "class": "ListProducerProcess","next_steps" : "EventLoop"},
+
+      "consumer_conf": { "name" : "StringWriter",
+                         "module": "ctapipe.flow.algorithms.string_writer",
+                "class": "StringWriter"},
+
+      "stagers_conf" : [ {"name": "EventLoop", "class": "EventLoop",
+                          "module": "ctapipe.flow.algorithms.event_loop",
+                         "next_steps" : "HiPeCTAProcess", "nb_process" :4 },
+
+                        {"name": "HiPeCTAProcess", "class": "HiPeCTAProcess",
+                          "module": "ctapipe.flow.algorithms.hipecta_process",
+                          "next_steps" : "StringWriter", "nb_process" : 4}
+                       ]
+  },
+
+  "ListProducerProcess": { "source_dir": "/tmp/test"},
+
+  "StringWriter": { "filename": "string_writter.txt"}
+
+}
+
+
+

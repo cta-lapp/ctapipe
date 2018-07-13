@@ -15,8 +15,10 @@ class ListProducerProcess(Component):
     def run(self):
         self.log.info('ListProducerProcess --- start ---')
         for input_file in os.listdir(self.source_dir):
-            self.log.info('--- ListProducerProcess send  {} ---'.format(self.source_dir + "/" + input_file))
-            yield self.source_dir + "/" + input_file
+            self.log.info('--- ListProducerProcess test {}'.format(self.source_dir+"/"+input_file))
+            if os.path.isfile(self.source_dir+"/"+input_file):
+                self.log.info('--- ListProducerProcess send  {} ---'.format(self.source_dir + "/" + input_file))
+                yield self.source_dir + "/" + input_file
 
     def finish(self):
         self.log.info('--- {} finish ---'.format(threading.get_ident()))

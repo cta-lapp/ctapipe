@@ -1,6 +1,5 @@
 from ctapipe.core import Component
 from traitlets import Unicode
-from time import sleep
 
 
 class StringWriter(Component):
@@ -12,15 +11,14 @@ class StringWriter(Component):
         config=True, allow_none=True)
 
     def init(self):
-        self.file = open(self.filename, 'w')
+        #self.file = open(self.filename, 'w')
         self.log.debug("--- StringWriter init filename {}---".format(self.filename))
         return True
 
-    def run(self, object):
-        self.file.write(str(object) + "\n")
-        sleep(.5)
+    def run(self, msg):
+        #self.file.write(str(msg) + "\n")
         self.log.debug('StringWriter write {}'.format(object))
 
     def finish(self):
-        self.file.close()
+        #self.file.close()
         self.log.debug("--- StringWriter finish---")
