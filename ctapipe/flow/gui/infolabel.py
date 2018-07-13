@@ -1,5 +1,4 @@
-#from PyQt4.QtCore import *
-from PyQt4.QtGui import QLabel
+from PyQt5.QtWidgets import QLabel
 
 
 class InfoLabel(QLabel):
