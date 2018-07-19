@@ -18,7 +18,10 @@ class LSTEventSource(EventSource):
         super().__init__(config=config, tool=tool, **kwargs)
         from protozfits import File
         self.file = File(self.input_url)
-        self.camera_config = next(self.file.CameraConfig)
+        try:
+            self.camera_config = next(self.file.CameraConfiguration)
+        except AttributeError:
+            self.camera_config = next(self.file.CameraConfig)
 
 
     def _generator(self):

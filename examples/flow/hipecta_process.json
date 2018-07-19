@@ -20,7 +20,7 @@
                        ]
   },
 
-  "ListProducerProcess": { "source_dir": "/tmp/test"},
+  "ListProducerProcess": { "source_dir": "/Data/CTA/Lst"},
 
   "StringWriter": { "filename": "string_writter.txt"}
 
