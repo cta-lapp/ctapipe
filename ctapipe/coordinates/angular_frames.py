@@ -20,10 +20,17 @@ TODO:
 
 import astropy.units as u
 import numpy as np
-from astropy.coordinates import (BaseCoordinateFrame, FrameAttribute,
+from astropy.coordinates import (BaseCoordinateFrame,
                                  CartesianRepresentation,
                                  UnitSphericalRepresentation,
                                  FunctionTransform, RepresentationMapping)
+
+try:
+    # FrameAttribute was renamed Attribute in astropy 2.0
+    # TODO: should really use subclasses like QuantityAttribute
+    from astropy.coordinates import FrameAttribute as Attribute
+except ImportError:
+    from astropy.coordinates import Attribute
 
 from astropy.coordinates import frame_transform_graph
 from numpy import cos, sin, arctan, arctan2, arcsin, sqrt, arccos, tan
@@ -50,11 +57,11 @@ class CameraFrame(BaseCoordinateFrame):
     * ``rotation``
         Rotation angle of the camera (0 deg in most cases)
     """
-    default_representation = CartesianRepresentation
-    focal_length = FrameAttribute(default=None)
-    rotation = FrameAttribute(default=0 * u.deg)
-    pointing_direction = FrameAttribute(default=None)
-    array_direction = FrameAttribute(default=None)
+    default_representation = PlanarRepresentation
+    focal_length = Attribute(default=None)
+    rotation = Attribute(default=0 * u.deg)
+    pointing_direction = Attribute(default=None)
+    array_direction = Attribute(default=None)
 
 
 class TelescopeFrame(BaseCoordinateFrame):
@@ -75,7 +82,7 @@ class TelescopeFrame(BaseCoordinateFrame):
 
     """
     default_representation = PlanarRepresentation
-    pointing_direction = FrameAttribute(default=None)
+    pointing_direction = Attribute(default=None)
 
 
 class NominalFrame(BaseCoordinateFrame):
@@ -87,7 +94,7 @@ class NominalFrame(BaseCoordinateFrame):
     performed in this system
 
     Frame attributes:
-    
+
     * ``array_direction``
         Alt,Az direction of the array pointing
     * ``pointing_direction``
@@ -95,8 +102,8 @@ class NominalFrame(BaseCoordinateFrame):
 
     """
     default_representation = PlanarRepresentation
-    pointing_direction = FrameAttribute(default=None)
-    array_direction = FrameAttribute(default=None)
+    pointing_direction = Attribute(default=None)
+    array_direction = Attribute(default=None)
 
 
 class HorizonFrame(BaseCoordinateFrame):
@@ -125,8 +132,8 @@ class HorizonFrame(BaseCoordinateFrame):
 
     frame_specific_representation_info['unitspherical'] = frame_specific_representation_info['spherical']
 
-    pointing_direction = FrameAttribute(default=None)
-    array_direction = FrameAttribute(default=None)
+    pointing_direction = Attribute(default=None)
+    array_direction = Attribute(default=None)
 
 
 # Transformations defined below this point
@@ -208,8 +215,12 @@ def offset_to_altaz(x_off, y_off, azimuth, altitude):
 
     offset = sqrt(x_off * x_off + y_off * y_off)
     pos = np.where(offset == 0)  # find offset 0 positions
+
     if len(pos[0]) > 0:
-        offset[pos] = 1e-12  # add a very small offset to prevent math errors
+        if np.isscalar(offset):
+            offset = 1e-14
+        else:
+            offset[pos] = 1e-14  # add a very small offset to prevent math errors
 
     atan_off = arctan(offset)
 
@@ -229,8 +240,12 @@ def offset_to_altaz(x_off, y_off, azimuth, altitude):
     obj_azimuth = arctan2(yp0, -xp0) + azimuth
 
     if len(pos[0]) > 0:
-        obj_altitude[pos] = altitude
-        obj_azimuth[pos] = azimuth
+        if np.isscalar(obj_altitude):
+            obj_altitude = altitude
+            obj_azimuth = azimuth
+        else:
+            obj_altitude[pos] = altitude
+            obj_azimuth[pos] = azimuth
 
     obj_altitude = obj_altitude * u.rad
     obj_azimuth = obj_azimuth * u.rad

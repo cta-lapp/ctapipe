@@ -1,118 +1,125 @@
-import argparse
-from ctapipe.utils import get_dataset
-import os
-import numpy as np
-from astropy import log
-from astropy.table import Table
-from ctapipe.io.hessio import hessio_event_source
-#from calibration_pipeline import display_telescope
-from ctapipe.calib.camera.r1 import HessioR1Calibrator
-from ctapipe.calib.camera.dl0 import CameraDL0Reducer
-from ctapipe.calib.camera.dl1 import CameraDL1Calibrator
-from matplotlib import colors, pyplot as plt
-from ctapipe.image.muon.muon_reco_functions import analyze_muon_source, analyze_muon_event
-from ctapipe.image.muon.muon_diagnostic_plots import plot_muon_efficiency, plot_muon_event
-from ctapipe.plotting.camera import CameraPlotter
-
-from IPython import embed
-
 """
-Example to load raw data (hessio format),
-calibrate and reconstruct muon ring
-parameters
+Example to load raw data (hessio format), calibrate and reconstruct muon
+ring parameters, and write the muon ring and intensity parameters to an output
+table.
+
+The resulting output can be read e.g. using `pandas.read_hdf(filename,
+'muons/LSTCam')`
 """
 
-def display_muon_plot(event):
-    print("MUON:",event[0].run_id,event[0].event_id,event[1].impact_parameter,event[1].ring_width,"mu_eff=",event[1].optical_efficiency_muon)
-    pass
+import warnings
+from collections import defaultdict
 
-def main():
-    script = os.path.splitext(os.path.basename(__file__))[0]
-    log.info("[SCRIPT] {}".format(script))
+from tqdm import tqdm
 
-    parser = argparse.ArgumentParser(
-        description='Display each event in the file',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-f', '--file', dest='input_path', action='store',
-                        default=get_dataset('gamma_test.simtel.gz'),
-                        help='path to the input file')
+from ctapipe.calib import CameraCalibrator
+from ctapipe.core import Provenance
+from ctapipe.core import Tool, ToolConfigurationError
+from ctapipe.core import traits as t
+from ctapipe.image.muon.muon_diagnostic_plots import plot_muon_event
+from ctapipe.image.muon.muon_reco_functions import analyze_muon_event
+from ctapipe.io import EventSourceFactory
+from ctapipe.io import HDF5TableWriter
 
-    parser.add_argument('-O', '--origin', dest='origin', action='store',
-                         #was .origin_list()
-                        default='hessio', help='origin of the file')
-    parser.add_argument('-D', dest='display', action='store_true',
-                        default=False, help='display the camera events')
-    parser.add_argument('-t', '--telescope', dest='tel', action='store',
-                        type=int, default=None,
-                        help='telecope to view. Default = All')
-    parser.add_argument('--pdf', dest='output_path', action='store',
-                        default=None,
-                        help='path to store a pdf output of the plots')
-    parser.add_argument('--calib-help', dest='calib_help', action='store_true',
-                        default=False,
-                        help='display the arguments used for the camera '
-                             'calibration')
-    
-    args, excess_args = parser.parse_known_args()
+warnings.filterwarnings("ignore")  # Supresses iminuit warnings
 
-    #params, unknown_args = calibration_parameters(excess_args,
-    #                                              args.origin,
-    #                                              args.calib_help)
-    r1 = HessioR1Calibrator(None, None)
-    dl0 = CameraDL0Reducer(None, None)
-    dl1 = CameraDL1Calibrator(None, None)
 
-    log.debug("[file] Reading file")
-    #input_file = InputFile(args.input_path, args.origin)
-    #source = input_file.read()
-    source = hessio_event_source(args.input_path)
-    
-    geom_dict = {}
+def _exclude_some_columns(subarray, writer):
+    """ a hack to exclude some columns of all output tables here we exclude
+    the prediction and mask quantities, since they are arrays and thus not
+    readable by pandas.  Also, prediction currently is a variable-length
+    quantity (need to change it to be fixed-length), so it cannot be written
+    to a fixed-length table.
+    """
+    all_camids = {str(x.camera) for x in subarray.tel.values()}
+    for cam in all_camids:
+        writer.exclude(cam, 'prediction')
+        writer.exclude(cam, 'mask')
 
-    #
-    plot_dict = {}
-    muoneff = []
-    impactp = []
-    ringwidth = []
-    plot_dict = {'MuonEff':muoneff,'ImpactP':impactp,'RingWidth':ringwidth}
 
-    numev = 0
+class MuonDisplayerTool(Tool):
+    name = 'ctapipe-display-muons'
+    description = t.Unicode(__doc__)
 
-    for event in source:
-        print("Event Number",numev)
-        r1.calibrate(event)
-        dl0.reduce(event)
-        dl1.calibrate(event)
-        muon_evt = analyze_muon_event(event)
+    events = t.Unicode("",
+                       help="input event data file").tag(config=True)
 
-        numev += 1
-        #Test display #Flag 1 for true (wish to display)
-        #plot_muon_event(event,muon_evt)
-        # display_telescope(muon_evt, muon_evt[0].tel_id, 1, geom_dict, pp, fig)
-        if muon_evt[0] is not None and muon_evt[1] is not None:
+    outfile = t.Unicode("muons.hdf5", help='HDF5 output file name').tag(
+        config=True)
 
-            plot_muon_event(event,muon_evt,None,args)
-            
-            plot_dict['MuonEff'].append(muon_evt[1].optical_efficiency_muon)
-            plot_dict['ImpactP'].append(muon_evt[1].impact_parameter.value)
-            plot_dict['RingWidth'].append(muon_evt[1].ring_width.value)
-            
-            display_muon_plot(muon_evt) 
-            #Store and or Plot muon parameters here
+    display = t.Bool(
+        help='display the camera events', default=False
+    ).tag(config=True)
 
-        #if numev > 50: #for testing purposes - kill early
-        #    break
+    classes = t.List([
+        CameraCalibrator, EventSourceFactory
+    ])
 
-    t = Table([muoneff, impactp, ringwidth], names=('MuonEff','ImpactP','RingWidth'), meta={'name': 'muon analysis results'})
-    t['ImpactP'].unit = 'm'
-    t['RingWidth'].unit = 'deg'
-    #    print('plotdict',plot_dict)
+    aliases = t.Dict({
+        'input': 'MuonDisplayerTool.events',
+        'outfile': 'MuonDisplayerTool.outfile',
+        'display': 'MuonDisplayerTool.display',
+        'max_events': 'EventSourceFactory.max_events',
+        'allowed_tels': 'EventSourceFactory.allowed_tels',
+    })
 
-    t.write(str(args.output_path)+'_muontable.fits',overwrite=True) #NEED this to overwrite
+    def setup(self):
+        if self.events == '':
+            raise ToolConfigurationError("please specify --input <events file>")
+        self.log.debug("input: %s", self.events)
+        self.source = EventSourceFactory.produce(input_url=self.events)
+        self.calib = CameraCalibrator(
+            config=self.config, tool=self, eventsource=self.source
+        )
+        self.writer = HDF5TableWriter(self.outfile, "muons")
 
-    plot_muon_efficiency(args.output_path)
-    
-    log.info("[COMPLETE]")
+    def start(self):
+
+        numev = 0
+        self.num_muons_found = defaultdict(int)
+
+        for event in tqdm(self.source, desc='detecting muons'):
+
+            self.calib.calibrate(event)
+            muon_evt = analyze_muon_event(event)
+
+            if numev == 0:
+                _exclude_some_columns(event.inst.subarray, self.writer)
+
+            numev += 1
+
+            if not muon_evt['MuonIntensityParams']:
+                # No telescopes  contained a good muon
+                continue
+            else:
+                if self.display:
+                    plot_muon_event(event, muon_evt)
+
+                for tel_id in muon_evt['TelIds']:
+                    idx = muon_evt['TelIds'].index(tel_id)
+                    intens_params = muon_evt['MuonIntensityParams'][idx]
+
+                    if intens_params is not None:
+                        ring_params = muon_evt['MuonRingParams'][idx]
+                        cam_id = str(event.inst.subarray.tel[tel_id].camera)
+                        self.num_muons_found[cam_id] += 1
+                        self.log.debug("INTENSITY: %s", intens_params)
+                        self.log.debug("RING: %s", ring_params)
+                        self.writer.write(table_name=cam_id,
+                                          containers=[intens_params,
+                                                      ring_params])
+
+                self.log.info(
+                    "Event Number: %d, found %s muons",
+                    numev, dict(self.num_muons_found)
+                )
+
+    def finish(self):
+        Provenance().add_output_file(self.outfile,
+                                     role='dl1.tel.evt.muon')
+        self.writer.close()
+
 
 if __name__ == '__main__':
-    main()
+    tool = MuonDisplayerTool()
+    tool.run()

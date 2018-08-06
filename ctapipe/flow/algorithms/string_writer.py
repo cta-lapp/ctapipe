@@ -1,10 +1,5 @@
-from time import sleep
-
-from ctapipe.core.traits import (
-    traits_expand_path,
-    Unicode,
-)
 from ctapipe.core import Component
+from traitlets import Unicode
 
 
 class StringWriter(Component):
@@ -13,22 +8,17 @@ class StringWriter(Component):
         It writes received objects to file
     """
     filename = Unicode('/tmp/test.txt', help='output filename').tag(
-        config=True)
+        config=True, allow_none=True)
 
     def init(self):
-        self.file = open(self.filename, 'w')
-        self.log.info("--- StringWriter init filename {}---".format(self.filename))
+        #self.file = open(self.filename, 'w')
+        self.log.debug("--- StringWriter init filename {}---".format(self.filename))
         return True
 
-    def run(self, object):
-        self.file.write(str(object) + "\n")
-        self.log.debug('StringWriter write {}'.format( object))
+    def run(self, msg):
+        #self.file.write(str(msg) + "\n")
+        self.log.debug('StringWriter write {}'.format(object))
 
     def finish(self):
-        self.file.close()
+        #self.file.close()
         self.log.debug("--- StringWriter finish---")
-
-    @validate('filename')
-    @traits_expand_path
-    def _check_filename(self, proposal):
-        return proposal['value']

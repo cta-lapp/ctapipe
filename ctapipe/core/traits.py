@@ -1,41 +1,54 @@
-import functools
-import os.path as osp
-
-from traitlets import (Int, Integer, Float, Unicode, Enum, Long,
-                       List, Bool, CRegExp, Dict, TraitError, observe, validate)
+from traitlets import (Int, Integer, Float, Unicode, Enum, Long, List,
+                       Bool, CRegExp, Dict, TraitError, observe,
+                       CaselessStrEnum, TraitType)
 from traitlets.config import boolean_flag as flag
+import os
 
-
-__all__ = ['Int', 'Integer', 'Float', 'Unicode', 'Enum', 'Long', 'List',
+__all__ = ['Path', 'Int', 'Integer', 'Float', 'Unicode', 'Enum', 'Long', 'List',
            'Bool', 'CRegExp', 'Dict', 'flag', 'TraitError', 'observe',
-           'validate', 'traits_expand_path', 'traits_expects_directory']
+           'CaselessStrEnum']
 
 
-def traits_expand_path(func):
-    """Perform environment variables and ~user substitution
-    in specified argument
+class Path(TraitType):
+    def __init__(self, exists=None, directory_ok=True, file_ok=True):
+        '''
+        A path Trait for input/output files.
 
-    decorator usable with ```traitlets.validate``` decorator
-    """
-    @functools.wraps(func)
-    def _wrapper(instance, proposal):
-        proposal['value'] = osp.expandvars(osp.expanduser(proposal['value']))
-        return func(instance, proposal)
-    return _wrapper
+        Parameters
+        ----------
+        exists: boolean or None
+            If True, path must exist, if False path must not exist
 
+        directory_ok: boolean
+            If False, path must not be a directory
+        file_ok: boolean
+            If False, path must not be a file
+        '''
+        super().__init__()
+        self.exists = exists
+        self.directory_ok = directory_ok
+        self.file_ok = file_ok
 
-def traits_expects_directory(func):
-    """Ensure specified argument is a path to an existing directory
+    def validate(self, obj, value):
 
-    decorator usable with ```traitlets.validate``` decorator
-    """
-    @functools.wraps(func)
-    def _wrapper(instance, proposal):
-        path = proposal['value']
-        real_path = osp.realpath(path)
-        if not osp.exists(real_path):
-            raise TraitError('Path does not exists: %s' % real_path)
-        if not osp.isdir(real_path):
-            raise TraitError('Path is not a directory: %s' % real_path)
-        return func(instance, proposal)
-    return _wrapper
+        if isinstance(value, str):
+            value = os.path.abspath(value)
+            if self.exists is not None:
+                if os.path.exists(value) != self.exists:
+                    raise TraitError('Path "{}" {} exist'.format(
+                        value,
+                        'does not' if self.exists else 'must'
+                    ))
+            if os.path.exists(value):
+                if os.path.isdir(value) and not self.directory_ok:
+                    raise TraitError(
+                        'Path "{}" must not be a directory'.format(value)
+                    )
+                if os.path.isfile(value) and not self.file_ok:
+                    raise TraitError(
+                        'Path "{}" must not be a file'.format(value)
+                    )
+
+            return value
+
+        return self.error(obj, value)
